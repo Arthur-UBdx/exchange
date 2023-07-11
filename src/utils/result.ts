@@ -22,6 +22,11 @@ export class Result<T, E> {
         return this.value;
     }
 
+    public unwrap_err(): any {
+        if(this.success) throw new Error(`Cannot unwrap an ok:\n${this.value}`);
+        return this.error;
+    }
+
     public unwrap_or(default_value: any): any {
         if(!this.success) return default_value;
         return this.value;

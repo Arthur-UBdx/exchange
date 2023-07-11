@@ -3,7 +3,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 
 const router_ressource: Router = require('./web/route_ressource');
-const router_user_handling: Router = require('./web/api/user_management/routes');
+const router_user_handling: Router = require('./web/user_management/routes');
 
 dotenv.config();
 
@@ -19,6 +19,10 @@ class Server {
         this.app.use(express.json());
         this.app.use(router_ressource);
         this.app.use(router_user_handling);
+
+        this.app.get('/', (req, res) => {
+            res.send('Hello world');
+        })
     }
 
     public start() {
