@@ -1,11 +1,11 @@
 import {Router, Application} from 'express'; 
 const express = require('express');
 const dotenv = require('dotenv');
+dotenv.config();
 
 const router_ressource: Router = require('./web/route_ressource');
 const router_user_handling: Router = require('./web/user_management/routes');
 
-dotenv.config();
 
 class Server {
     private app: Application;

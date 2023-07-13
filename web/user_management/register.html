@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Log In</title>
+    <title>Register</title>
+    <link href="/ressource/image/favicon.ico" rel="icon" type="image/x-icon"/>
     <link rel="stylesheet" type="text/css" href="/ressource/style.css">
-    <script href="/ressource/scripts/register.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="/ressource/script/register.js"></script>
 </head>
 <body>
     <div style="padding:60px">
@@ -11,21 +13,24 @@
             <h1>Register</h1>
             </div>
                 <label for="email"><b>E-mail</b></label><br>
-                <input type="text" placeholder="Enter your e-mail" name="email" maxlength="32" required><br>
+                <input type="text" placeholder="Enter your e-mail" id="email" maxlength="32" required><br>
 
                 <label for="username"><b>Username</b></label><br>
-                <input type="text" placeholder="Enter your username" name="username" maxlength="32" required><br>
+                <input type="text" placeholder="Enter your username" id="username" maxlength="32" required><br>
                 
                 <label for="password"><b>Password</b></label><br>
-                <input type="password" placeholder="Enter your password" name="password" maxlength="64" required><br>
+                <input type="password" placeholder="Enter your password" id="password" maxlength="64" required><br>
                 
                 <label for="password-confirm"><b>Confirm password</b></label><br>
                 <input type="password" placeholder="Confirm your password" id="password-confirm" maxlength="64" required><br>
+
+                <label for="showpass" id="label-showpass"><b>Show passwords</b></label>
+                <input type="checkbox" id="showpass"><br>
                 
                 <label for="remember"><b>Remember me</b></label>
-                <input type="checkbox" name="remember" value="remember"><br>
+                <input type="checkbox" id="remember"><br>
 
-                <button>Log In</button><br>
+                <button id="register-submit">Register</button><br>
 
                 <p id="response"></p>
             </div>
