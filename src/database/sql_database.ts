@@ -1,7 +1,6 @@
 import pool from './sql_database_connector';
-import { QueryConfig, Pool, Client } from 'pg';
+import { QueryConfig, PoolClient } from 'pg';
 import { Result } from '../utils/result';
-import { exec } from 'child_process';
 
 export class SQLDatabase {
     private queryList: QueryConfig[];
@@ -44,15 +43,12 @@ export class SQLDatabase {
             const client = await pool.connect();
             try {
                 await client.query('BEGIN');
-                console.log('BEGIN');
                 
                 for(const query of this.queryList) {
                     const result: any = await client.query(query);
-                    console.log(query);
                     results.push(result);
                 }
                 await client.query('COMMIT');
-                console.log('COMMIT');
             } catch (error) {
                 await client.query('ROLLBACK');
                 console.error(error);

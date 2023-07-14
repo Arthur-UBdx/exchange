@@ -1,27 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Log In</title>
+    <title>Log in</title>
     <link href="/ressource/image/favicon.ico" rel="icon" type="image/x-icon"/>
-    <link rel="stylesheet" type="text/css" href="/ressource/css/style.css">
-    <script src="/ressource/script/login.js"></script>
+    <link rel="stylesheet" type="text/css" href="/ressource/style/style.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="/ressource/script/login.js"></script>
 </head>
 <body>
     <div style="padding:60px">
         <div>
-            <h1>Log In</h1>
+            <h1>Log in</h1>
             </div>
                 <label for="username"><b>Username or e-mail</b></label><br>
-                <input type="text" placeholder="Enter your e-mail or username" id="username" maxlength="32" required><br>
+                <input type="text" placeholder="Enter your username" id="username" maxlength="32" required><br>
                 
                 <label for="password"><b>Password</b></label><br>
                 <input type="password" placeholder="Enter your password" id="password" maxlength="64" required><br>
+
+                <p id='showpass' style='cursor: pointer'><b>Show passwords</b></p>
                 
                 <label for="remember"><b>Remember me</b></label>
-                <input type="checkbox" id="remember" value="remember"><br>
+                <input type="checkbox" id="remember" style='cursor: pointer'><br>
 
-                <button id='login-submit'>Log In</button><br>
+                <button id="login-submit">Log in</button><br>
 
                 <p id="response"></p>
             </div>
