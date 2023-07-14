@@ -1,4 +1,3 @@
-import { token_authenticator } from './web/api/user/auth';
 import {Router, Application} from 'express'; 
 import cookieParser from 'cookie-parser';
 const express = require('express');
@@ -6,8 +5,10 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const router_ressource: Router = require('./web/route_ressource');
-const router_user_handling: Router = require('./web/user_management/routes');
-const router_auth_test: Router = require('./web/api/auth_test');
+const router_api_user_unauth: Router = require('./web/api/user/routes_unauth');
+const router_api_user_auth: Router = require('./web/api/user/routes_auth');
+const router_pages_user_unauth: Router = require('./web/pages/user_unauth');
+const router_api_platform: Router = require('./web/api/platform/routes');
 
 class Server {
     private app: Application;
@@ -19,17 +20,24 @@ class Server {
 
     private layers() {
         this.app.use(express.json());
+        this.app.use(cookieParser());
+
         // non auth paths
         this.app.get('/', (req, res) => {
             res.send('Hello world');
         })
-        this.app.use(cookieParser());
         this.app.use(router_ressource);
-        this.app.use(router_user_handling);
+        this.app.use(router_api_user_unauth);
+        this.app.use(router_pages_user_unauth);
+        this.app.use(router_api_platform);
 
         // auth paths
-        this.app.use(token_authenticator);
-        this.app.use(router_auth_test);
+        this.app.use(router_api_user_auth);
+
+        // 404
+        this.app.use((req, res) => {
+            res.status(404).json({success:"false", message:"Path not found"});
+        });
     }
     
     public start() {

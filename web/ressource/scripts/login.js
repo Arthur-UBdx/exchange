@@ -4,14 +4,14 @@ $(function() {
         const password = $('#password').val();
         const response = $('#response');
 
-        if (username.length < 3 || username.length > 64 || password.length < 8 || password.length > 64 || !/^[a-zA-Z0-9_]+$/.test(username) || !/^[a-zA-Z0-9!@#$%^&*_-]+$/.test(password)) {
-            response.html('Invalid username or password');
+        if (username.length < 3 || username.length > 64 || password.length < 8 || password.length > 64 || !/^[a-zA-Z0-9!@#$%^&*_-]+$/.test(password)) {
+            response.html('Invalid username or password 1');
             response.css('color', 'red');
             return;
         }
 
         $.ajax({
-            url: '/login',
+            url: '/api/login',
             type: 'POST',
             data: JSON.stringify({
                 username: username,

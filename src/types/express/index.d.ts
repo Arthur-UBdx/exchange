@@ -1,4 +1,4 @@
-import { User } from '../../web/user_management/model';
+import { User } from '../../database/sql_models';
 
 export {};
 

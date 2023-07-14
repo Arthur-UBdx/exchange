@@ -57,7 +57,7 @@ $(function() {
         }
 
         $.ajax({
-          url: '/register',
+          url: '/api/register',
           type: 'POST',
           data: JSON.stringify({
             email: email,

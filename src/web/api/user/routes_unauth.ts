@@ -1,16 +1,13 @@
 import { Router } from 'express';
-import { RegisterError, LoginError, User , create_user, login_user } from './model';
+import { RegisterError, LoginError, create_user, login_user } from './unauth/user_management';
+import { User } from '../../../database/sql_models';
 import { Result } from '../../../utils/result';
-import { AuthCookie, token_authenticator } from './auth';
+import { AuthCookie, token_authenticator } from './auth_middleware';
 import { CacheDatabase } from '../../../database/cache_database';
 
-const router_user_handling = Router();
+const router_api_user_unauth = Router();
 
-router_user_handling.get('/login', async (req, res) => {
-    res.status(200).sendFile('user_management/login.html', {root: './web/'});
-});
-
-router_user_handling.get('/api/login', async (req, res) => {
+router_api_user_unauth.post('/api/login', async (req, res) => {
     if(req.body.username == null || req.body.password == null || req.body.remember_me == null) {
         res.status(400).send('Bad request');
         return;
@@ -18,7 +15,7 @@ router_user_handling.get('/api/login', async (req, res) => {
 
     const remember_me: boolean = req.body.remember_me;
     const result: Result<User, LoginError> = await login_user(req.body.username, req.body.password);
-    const expires: number|null = remember_me ? null : Date.now() + parseInt(process.env.SESSION_EXPIRATION_TIME);
+    const expires: number|null = remember_me ? null : Date.now() + parseInt(process.env.SESSION_EXPIRATION_TIME || '3600');
 
     if(result.is_err()) {
         switch(result.unwrap_err()) {
@@ -47,16 +44,12 @@ router_user_handling.get('/api/login', async (req, res) => {
     if(remember_me) {
         res.cookie('auth_token', token, { httpOnly: true}); //TODO : add 'secure: true' when https is set up
     } else {
-        res.cookie('auth_token', token, { maxAge: parseInt(process.env.SESSION_EXPIRATION_TIME), httpOnly: true});
+        res.cookie('auth_token', token, { maxAge: parseInt(process.env.SESSION_EXPIRATION_TIME || '3600'), httpOnly: true});
     }
     res.status(200).json({success:"true", message:"User logged in successfully"});
 })
 
-router_user_handling.get('/register', async (req, res) => {
-    res.status(200).sendFile('user_management/register.html', {root: './web/'});
-});
-
-router_user_handling.post('/api/register', async (req, res) => {
+router_api_user_unauth.post('/api/register', async (req, res) => {
     // check if body exists
     if(req.body.username == null || req.body.password == null || req.body.email == null || req.body.remember_me == null) {
         res.status(400).send('Bad request');
@@ -64,7 +57,7 @@ router_user_handling.post('/api/register', async (req, res) => {
     }
     const remember_me: boolean = req.body.remember_me;
     const result: Result<User, RegisterError> = await create_user(req.body.username, req.body.email, req.body.password);
-    const expires: number|null = remember_me ? null : Date.now() + parseInt(process.env.SESSION_EXPIRATION_TIME);
+    const expires: number|null = remember_me ? null : Date.now() + parseInt(process.env.SESSION_EXPIRATION_TIME || '3600');
 
     if(result.is_err()) {
         switch(result.unwrap_err()) {
@@ -103,17 +96,11 @@ router_user_handling.post('/api/register', async (req, res) => {
     if(remember_me) {
         res.cookie('auth_token', token, { httpOnly: true}); //TODO : add 'secure: true' when https is set up
     } else {
-        res.cookie('auth_token', token, { maxAge: parseInt(process.env.SESSION_EXPIRATION_TIME), httpOnly: true});
+        res.cookie('auth_token', token, { maxAge: parseInt(process.env.SESSION_EXPIRATION_TIME || '3600'), httpOnly: true});
     }
     res.status(200).json({success:"true", message:"User created"});
 });
 
 // remove the user in the session cache and clear the cookie
-router_user_handling.get('/logout', token_authenticator, async (req, res) => {
-    CacheDatabase.set(req.user.id, null);
-    res.clearCookie('auth_token');
-    res.status(200).json({success:"true", message:"User logged out"});
-});
 
-
-module.exports = router_user_handling;
+module.exports = router_api_user_unauth;

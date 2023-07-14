@@ -1,6 +1,7 @@
-import { SQLDatabase } from '../../../database/sql_database';
-import { Result } from '../../../utils/result';
+import { SQLDatabase } from '../../../../database/sql_database';
+import { Result } from '../../../../utils/result';
 import { createHash, timingSafeEqual, randomBytes } from 'crypto';
+import { User } from '../../../../database/sql_models'
 
 const sql_database = new SQLDatabase();
 
@@ -13,16 +14,6 @@ export enum RegisterError {
 export enum LoginError {
     BadCredentials,
     InternalError,
-}
-
-export interface User {
-    id: number;
-    email: string;
-    username: string;
-    password: string;
-    salt: string;
-    auth_level: number;
-    status: number;
 }
 
 export async function create_user(username: string, email: string, password: string): Promise<Result<User, RegisterError>> {    

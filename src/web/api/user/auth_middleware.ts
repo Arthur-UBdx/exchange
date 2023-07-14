@@ -1,4 +1,4 @@
-import { User } from './model';
+import { User } from '../../../database/sql_models';
 import { createHash } from 'crypto';
 import { sign, verify } from 'jsonwebtoken';
 import { Result } from '../../../utils/result';
@@ -41,6 +41,7 @@ export class AuthCookie {
 }
 
 export async function token_authenticator(req, res, next) {
+    console.log(req.url)
     const token = req.cookies['auth_token'];
     if(!token) {
         res.status(401).json({
