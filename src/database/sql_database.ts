@@ -110,11 +110,7 @@ export class SQLDatabase {
         return this;
     }
 
-    public new_query(text: string, values: any[]): this {
-        const query: QueryConfig = {
-            text: text,
-            values: values,
-        };
+    public new_query(query: QueryConfig): this {
         this.queryList.push(query);
         return this;
     }

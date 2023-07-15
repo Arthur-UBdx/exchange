@@ -41,7 +41,6 @@ export class AuthCookie {
 }
 
 export async function token_authenticator(req, res, next) {
-    console.log(req.url)
     const token = req.cookies['auth_token'];
     if(!token) {
         res.status(401).json({

@@ -66,9 +66,11 @@ export async function create_user(username: string, email: string, password: str
 
 export async function login_user(username: string, password: string): Promise<Result<User, LoginError>> {
     //check if user exists
-    const query = 'SELECT * FROM users WHERE username = $1 OR email = $2';
-    const values = [username, username];
-    const result = await sql_database.new_query(query, values).execute_queries();
+    const query = {
+        text: 'SELECT * FROM users WHERE username = $1 OR email = $2',
+        values: [username, username] 
+    };
+    const result = await sql_database.new_query(query).execute_queries();
 
     if(result.is_err()) {
         console.error(result.unwrap_err());
