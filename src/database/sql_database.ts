@@ -4,6 +4,7 @@ import { Result } from '../utils/result';
 
 export class SQLDatabase {
     private queryList: QueryConfig[];
+    private pool
 
     constructor() {
         this.queryList = [];

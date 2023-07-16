@@ -1,55 +1,62 @@
-// import {Router, Application} from 'express'; 
-// import cookieParser from 'cookie-parser';
-// const express = require('express');
-// const dotenv = require('dotenv');
-// dotenv.config();
+import {Router, Application} from 'express'; 
+import cookieParser from 'cookie-parser';
 
-// const router_ressource: Router = require('./web/route_ressource');
-// const router_api_user_unauth: Router = require('./web/api/user/routes_unauth');
-// const router_api_user_auth: Router = require('./web/api/user/routes_auth');
-// const router_pages_user_unauth: Router = require('./web/pages/user_unauth');
-// const router_api_platform: Router = require('./web/api/platform/routes');
+// import { perform_transaction } from './engine/order_matching';
 
-// class Server {
-//     private app: Application;
+const express = require('express');
+const dotenv = require('dotenv');
+dotenv.config();
+
+console.log(process.env.DATABASE_URL);
+
+const router_ressource: Router = require('./web/route_ressource');
+const router_api_user_unauth: Router = require('./web/api/user/routes_unauth');
+const router_api_user_auth: Router = require('./web/api/user/routes_auth');
+const router_pages_user_unauth: Router = require('./web/pages/user_unauth');
+const router_api_platform: Router = require('./web/api/platform/routes');
+
+class Server {
+    private app: Application;
     
-//     constructor() {
-//         this.app = express();
-//         this.layers();
-//     }
+    constructor() {
+        this.app = express();
+        this.layers();
+    }
 
-//     private layers() {
-//         this.app.use(express.json());
-//         this.app.use(cookieParser());
+    private layers() {
+        this.app.use(express.json());
+        this.app.use(cookieParser());
 
-//         // non auth paths
-//         this.app.get('/', (req, res) => {
-//             res.send('Hello world');
-//         })
-//         this.app.use(router_ressource);
-//         this.app.use(router_api_user_unauth);
-//         this.app.use(router_pages_user_unauth);
-//         this.app.use(router_api_platform);
+        // non auth paths
+        this.app.get('/', (req, res) => {
+            res.send('Hello world');
+        })
 
-//         // auth paths
-//         this.app.use(router_api_user_auth);
+        // this.app.post('/perform_transaction', async (req, res) => {
+        //     await perform_transaction(34, 33, 1, 3, 1, 10);
+        //     res.status(200).send('transaction performed');
+        // });
 
-//         // 404
-//         this.app.use((req, res) => {
-//             res.status(404).json({success:"false", message:"Path not found"});
-//         });
-//     }
+        this.app.use(router_ressource);
+        this.app.use(router_api_user_unauth);
+        this.app.use(router_pages_user_unauth);
+        this.app.use(router_api_platform);
+
+        // auth paths
+        this.app.use(router_api_user_auth);
+
+        // 404
+        this.app.use((req, res) => {
+            res.status(404).json({success:"false", message:"Path not found"});
+        });
+    }
     
-//     public start() {
-//         this.app.listen(process.env.PORT, () => {
-//             console.log(`Server is running on port ${process.env.PORT}`);
-//         })
-//     }
-// }
+    public start() {
+        this.app.listen(process.env.PORT, () => {
+            console.log(`Server is running on port ${process.env.PORT}`);
+        })
+    }
+}
 
-// const server = new Server();
-// server.start();
-
-import { BSTTests } from "./engine/order_bst";
-
-BSTTests.test();
+const server = new Server();
+server.start();
