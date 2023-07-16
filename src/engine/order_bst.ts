@@ -3,7 +3,7 @@
 
 import { Order } from "./order_matching";
 
-class OrderQueueNode {
+export class OrderQueueNode {
     public order: Order;
     public next: OrderQueueNode | null;
 
@@ -21,7 +21,7 @@ class OrderQueueNode {
     }
 }
 
-class OrderQueue {
+export class OrderQueue {
     private price: number;
     private head: OrderQueueNode | null;
     private tail: OrderQueueNode | null;
@@ -32,10 +32,19 @@ class OrderQueue {
         this.tail = null;
     }
 
+    /**
+     * 
+     * @returns the price of the queue
+     */
     public get_price(): number {
         return this.price;
     }
 
+    /**
+     * 
+     * @param order the order to be added to the queue
+     * @returns void
+     */
     public enqueue(order: Order) {
         const node = new OrderQueueNode(order);
         if(this.head === null && this.tail === null) {
@@ -47,6 +56,10 @@ class OrderQueue {
         }
     }
 
+    /**
+     * 
+     * @returns the order at the head of the queue and removes it from the queue
+     */
     public dequeue(): Order | null {
         if(this.head === null) {
             return null;
@@ -56,6 +69,22 @@ class OrderQueue {
         return order;
     }
 
+    /**
+     * 
+     * @param order the order to replace the first order in the queue (the next order to be dequeued)
+     * @returns void
+     */
+    public replace_first(order: Order) {
+        if(this.head === null) {
+            return;
+        }
+        this.head.order = order;
+    }
+
+    /**
+     * 
+     * @returns the order at the head of the queue without removing it from the queue
+     */
     public peek(): Order | null {
         if(this.head === null) {
             return null;
@@ -63,10 +92,18 @@ class OrderQueue {
         return this.head.get_order();
     }
 
+    /**
+     * 
+     * @returns true if the queue is empty, false otherwise
+     */
     public is_empty(): boolean {
         return this.head === null;
     }
 
+    /**
+     * 
+     * @returns an array of all the orders in the queue in order of insertion
+     */
     public into_array(): Order[] {
         let node = this.head;
         const array: Order[] = [];
@@ -80,7 +117,7 @@ class OrderQueue {
 
 }
 
-class OrderQueueTreeNode {
+export class OrderQueueTreeNode {
     public order_queue: OrderQueue;
     public left: OrderQueueTreeNode | null;
     public right: OrderQueueTreeNode | null;
@@ -95,6 +132,10 @@ class OrderQueueTreeNode {
         return this.order_queue.get_price();
     }
 
+    /**
+     * Adds an order to the queue in the node
+     * @param order the order to be added to the queue
+     */
     public enqueue(order: Order) {
         this.order_queue.enqueue(order);
     }
@@ -107,7 +148,12 @@ export class OrderBST {
         this.root = null;
     }
 
-    public push(order: Order) {
+    /**
+     * 
+     * @param order the order to be added to the queue in the BST
+     * @returns void
+     */
+    public insert(order: Order) {
         const price = order.price;
         const node = this.root;
         if(node === null) {
@@ -141,7 +187,11 @@ export class OrderBST {
         }
     }
 
-    public pop(): Order | null {
+    /**
+     * 
+     * @returns the order at the minimum price in the queue in the BST and removes it from the queue in the BST, removes the node if the queue is empty
+     */
+    public pop_min(): Order | null {
         let current = this.root;
         if(current === null) {
             return null;
@@ -156,6 +206,30 @@ export class OrderBST {
         return order;
     }
 
+    /**
+     * 
+     * @returns the order at the maximum price in the queue in the BST and removes it from the queue in the BST, removes the node if the queue is empty
+     */
+    public pop_max(): Order | null {
+        let current = this.root;
+        if(current === null) {
+            return null;
+        }
+        while(current.right !== null) {
+            current = current.right;
+        }
+        const order = current.order_queue.dequeue();
+        if(current.order_queue.is_empty()) {
+            this.remove(current.get_price());
+        }
+        return order;
+    }
+
+    /**
+     * 
+     * @param price the price of the order to be extracted from the queue in the BST
+     * @returns the order at the specified price in the queue in the BST and removes it from the queue in the BST, removes the node if the queue is empty or null if the order is not found
+     */
     public extract(price: number): Order | null {
         let current = this.root;
         if(current === null) {
@@ -178,6 +252,11 @@ export class OrderBST {
         return order;
     }
 
+    /**
+     * Removes a queue node from the BST even if the queue is not empty
+     * @param price the price of the order to be removed from the queue in the BST
+     * @returns void
+     */
     public remove(price: number) { //will remove the whole node even if the queue is not empty
         function remove_node(node: OrderQueueTreeNode | null, price: number): OrderQueueTreeNode | null {
             if(node === null) {
@@ -211,6 +290,10 @@ export class OrderBST {
         this.root = remove_node(this.root, price);
     }
 
+    /**
+     * 
+     * @returns the order queue at the minimum price in the queue in the BST without removing it from the BST
+     */
     public find_min(): OrderQueue | null {
         let current = this.root;
         if(current === null) {
@@ -222,6 +305,41 @@ export class OrderBST {
         return current.order_queue;
     }
 
+    /**
+     * Replaces the first order in the queue at the minimum price in the BST
+     * @param order the order to replace the first order in the queue at the minimum price in the BST
+     * @returns void
+     */
+    public replace_min(order: Order): void {
+        let current = this.root;
+        if(current === null) {
+            return null;
+        }
+        while(current.left !== null) {
+            current = current.left;
+        }
+        current.order_queue.replace_first(order);
+    }
+
+    /**
+     * Deletes the first order in the queue at the minimum price in the BST
+     * @returns void
+     */
+    public delete_min(): void {
+        let current = this.root;
+        if(current === null) {
+            return null;
+        }
+        while(current.left !== null) {
+            current = current.left;
+        }
+        current.order_queue.dequeue();
+    }
+
+    /**
+     * 
+     * @returns the order queue at the maximum price in the queue in the BST without removing it from the BST
+     */
     public find_max(): OrderQueue | null {
         let current = this.root;
         if(current === null) {
@@ -233,6 +351,42 @@ export class OrderBST {
         return current.order_queue;
     }
 
+    /**
+     * Replaces the first order in the queue at the maximum price in the BST
+     * @param order the order to replace the first order in the queue at the maximum price in the BST
+     * @returns void
+     */
+    public replace_max(order: Order): void {
+        let current = this.root;
+        if(current === null) {
+            return null;
+        }
+        while(current.right !== null) {
+            current = current.right;
+        }
+        current.order_queue.replace_first(order);
+    }
+
+    /**
+     * Deletes the first order in the queue at the maximum price in the BST
+     * @returns void
+     */
+    public delete_max(): void {
+        let current = this.root;
+        if(current === null) {
+            return null;
+        }
+        while(current.right !== null) {
+            current = current.right;
+        }
+        current.order_queue.dequeue();
+    }
+
+    /**
+     * Finds the order queue at the specified price in the BST without removing it from the BST
+     * @param price 
+     * @returns the order queue if found else null
+     */
     public find(price: number): OrderQueue | null {
         let current = this.root;
         if(current === null) {
@@ -251,6 +405,10 @@ export class OrderBST {
         return current.order_queue;
     }
 
+    /**
+     * 
+     * @returns true if the BST is empty, false otherwise
+     */
     public is_empty(): boolean {
         return this.root === null;
     }
@@ -333,10 +491,10 @@ export class BSTTests {
         const orderBST = new OrderBST();
         
         // Test pushing orders into the BST
-        orderBST.push(order1);
-        orderBST.push(order2);
-        orderBST.push(order3);
-        orderBST.push(order4);
+        orderBST.insert(order1);
+        orderBST.insert(order2);
+        orderBST.insert(order3);
+        orderBST.insert(order4);
         
         // Test finding the minimum and maximum prices
         const minPriceQueue = orderBST.find_min();
@@ -349,13 +507,17 @@ export class BSTTests {
         const specificPriceQueue = orderBST.find(50000);
         console.log("Specific price queue (50000):", specificPriceQueue);
         
-        // Test popping an order from the BST
-        const poppedOrder = orderBST.pop();
-        console.log("Popped order:", poppedOrder);
+        // Test popping an orderMin from the BST
+        const poppedOrderMin = orderBST.pop_min();
+        console.log("Popped min order:", poppedOrderMin);
+
+        // Test popping an orderMax from the BST
+        const poppedOrderMax = orderBST.pop_max();
+        console.log("Popped max order:", poppedOrderMax);
         
         // Test extracting an order from the BST based on price
-        const extractedOrder = orderBST.extract(4000);
-        console.log("Extracted order (price 4000):", extractedOrder);
+        const extractedOrder = orderBST.extract(50000);
+        console.log("Extracted order (price 50000):", extractedOrder);
         
         // Test converting the BST to an array
         const orderArray = orderBST.into_array();
