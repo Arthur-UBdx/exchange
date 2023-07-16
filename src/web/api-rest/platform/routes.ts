@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { get_currencies } from './get_currencies'
-import { Asset } from '../../../database/sql_models';
+import { get_currencies, get_markets } from './assets_markets'
+import { Asset, Market } from '../../../database/sql_models';
 import { Result } from '../../../utils/result';
 
 const router_api_platform: Router = Router();
@@ -25,6 +25,16 @@ router_api_platform.get('/api/platform/currencies', async (req, res) => {
         delete currency.assigned;
     }
     res.status(200).json({success:"true", message:"Currencies found", currencies: currencies});
+})
+
+router_api_platform.get('/api/platform/markets', async (req, res) => {
+    const result: Result<Market[],string> = await get_markets();
+    if(result.is_err()) {
+        res.status(500).json({success:"false", message:"Internal server error"});
+        return;
+    }
+    const currencies: Market[] = result.unwrap();
+    res.status(200).json({success:"true", message:"Markets found", markets: currencies});
 })
 
 module.exports = router_api_platform;

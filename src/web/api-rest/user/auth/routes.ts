@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { token_authenticator } from './auth_middleware';
-import { Result } from '../../../utils/result';
-import { get_wallets, WalletError,  deposit, DepositError } from './auth/assets';
-import { CacheDatabase } from '../../../database/cache_database';
-import { User, Wallet } from '../../../database/sql_models';
+import { token_authenticator } from '../auth_middleware';
+import { Result } from '../../../../utils/result';
+import { get_wallets, WalletError,  deposit, DepositError } from './assets';
+import { CacheDatabase } from '../../../../database/cache_database';
+import { User, Wallet } from '../../../../database/sql_models';
 
 const router_api_user_auth: Router = Router();
 

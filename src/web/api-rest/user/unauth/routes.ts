@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { RegisterError, LoginError, create_user, login_user } from './unauth/user_management';
-import { User } from '../../../database/sql_models';
-import { Result } from '../../../utils/result';
-import { AuthCookie, token_authenticator } from './auth_middleware';
-import { CacheDatabase } from '../../../database/cache_database';
+import { RegisterError, LoginError, create_user, login_user } from './user_management';
+import { User } from '../../../../database/sql_models';
+import { Result } from '../../../../utils/result';
+import { AuthCookie, token_authenticator } from '../auth_middleware';
+import { CacheDatabase } from '../../../../database/cache_database';
 
 const router_api_user_unauth = Router();
 
