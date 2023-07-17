@@ -3,8 +3,16 @@ import sql_database_connector from "../database/sql_database_connector";
 import { Market } from "../database/sql_models";
 import { OrderQueueNode, OrderQueue, OrderQueueTreeNode, OrderBST } from "./order_bst";
 import { Mutex } from "async-mutex";
+import { Result } from "../utils/result"
+import { off } from "process";
 
 const database = new SQLDatabase();
+
+export enum TransactionError {
+    BuyerHasNotEnoughFunds,
+    SellerHasNotEnoughFunds,
+    InternalError
+}
 
 enum OrderStatus {
     Open = 0,
@@ -71,7 +79,7 @@ export class OrderBook {
         }
     }
 
-    public async resolve_buy_order(order: Order): Promise<void> {
+    public async resolve_buy_order(order: Order): Promise<Result<null, TransactionError>> {
         await this.mutex.acquire();
 
         let left: number = order.amount;
@@ -82,16 +90,45 @@ export class OrderBook {
             if(min_order.price > price) {
                 break;
             }
-            if(min_order.amount - min_order.filled > left) {
+            if(min_order.amount - min_order.filled > left) { // if the order found amount is greater than the left amount to fill
+                const result_transaction = await perform_transaction(
+                    order.owner_id,
+                    min_order.owner_id,
+                    this.market.currency1_id,
+                    this.market.currency2_id,
+                    left,
+                    min_order.price
+                );
+
+                if(result_transaction.is_err()) {
+                    console.error(result_transaction.unwrap_err());
+                    this.mutex.release();
+                    return Result.Err(result_transaction.unwrap_err());
+                }
+                
                 min_order.filled = min_order.filled + left;
                 min_order.status = OrderStatus.FilledPartially;
                 min_order.updated_at = new Date();
                 this.sell_order_tree.replace_min(min_order);
                 left = 0;
-
-                //update the users accounts)
                 
-            } else {
+            } else { // if the order found amount is less or equal than the left amount to fill
+
+                const result_transaction = await perform_transaction(
+                    order.owner_id,
+                    min_order.owner_id,
+                    this.market.currency1_id,
+                    this.market.currency2_id,
+                    min_order.amount - min_order.filled,
+                    min_order.price
+                );
+
+                if(result_transaction.is_err()) {
+                    console.error(result_transaction.unwrap_err());
+                    this.mutex.release();
+                    return Result.Err(result_transaction.unwrap_err());
+                }
+                
                 left = left - (min_order.amount - min_order.filled);
                 this.sell_order_tree.delete_min();
 
@@ -103,6 +140,7 @@ export class OrderBook {
         this.buy_order_tree.insert(order);
 
         this.mutex.release();
+        return Result.Ok(null);
     }
 }
 
@@ -115,42 +153,92 @@ export class OrderBook {
  * @param amount the amount of currency1 the buyer is buying
  * @param price the price per unit of currency1 (ex 300 for BTC/USDT, the buyer is offering 300 USDT per BTC)
  */
-export async function perform_transaction(buyer_id: number, seller_id: number, currency1_id: number, currency2_id: number, amount: number, price: number) {
+export async function perform_transaction(
+    buyer_id: number,
+    seller_id: number,
+    currency1_id: number,
+    currency2_id: number,
+    amount: number,
+    price: number): Promise<Result<null, TransactionError>> {
 
-    // unwrap(), can cause error if the query fails
-    const fetch_currencies_names = (await database.get_row('assets', 'id', currency1_id).get_row('assets', 'id', currency2_id).execute_queries()).unwrap();
-    const currency1 = fetch_currencies_names[0].rows[0];
-    const currency2 = fetch_currencies_names[1].rows[0];
+    const fetch_currencies_names = await database.get_row('assets', 'id', currency1_id).get_row('assets', 'id', currency2_id).execute_queries();
     
-    ( await database.new_query(
+    if(fetch_currencies_names.is_err()) {
+        console.error(fetch_currencies_names.unwrap_err());
+        return Result.Err(TransactionError.InternalError);
+    }
+
+    const currency1 = fetch_currencies_names.unwrap()[0].rows[0];
+    const currency2 = fetch_currencies_names.unwrap()[1].rows[0];
+
+    const fecth_wallets_balance = await database
+        .new_query({
+            text: `SELECT * FROM wallets WHERE owner_id = $1 AND currency_id = $2`,
+            values: [buyer_id, currency2_id]
+        })
+        .new_query({
+            text: `SELECT * FROM wallets WHERE owner_id = $1 AND currency_id = $2`,
+            values: [seller_id, currency1_id]
+        }).execute_queries();
+
+    if(fecth_wallets_balance.is_err()) {
+        console.error(fecth_wallets_balance.unwrap_err());
+        return Result.Err(TransactionError.InternalError);
+    }
+    let buyer_wallet;
+    let seller_wallet;
+
+    try {
+        buyer_wallet = fecth_wallets_balance.unwrap()[0].rows[0];
+    } catch {
+        return Result.Err(TransactionError.BuyerHasNotEnoughFunds);
+    }
+
+    try {
+        seller_wallet = fecth_wallets_balance.unwrap()[1].rows[0];
+    } catch {
+        return Result.Err(TransactionError.SellerHasNotEnoughFunds);
+    }
+
+    if(buyer_wallet.balance < amount*price) {
+        return Result.Err(TransactionError.BuyerHasNotEnoughFunds);
+    }
+    if(seller_wallet.balance < amount) {
+        return Result.Err(TransactionError.SellerHasNotEnoughFunds);
+    }
+    
+    const result_transaction = await database.new_query(
         {
-            text: `IF EXISTS (SELECT * FROM wallets WHERE owner_id = $1 AND currency_id = $2)
-                    BEGIN 
-                        UPDATE wallets SET balance = balance + $3 WHERE owner_id = $1 AND currency_id = $2
-                    END ELSE BEGIN
-                        INSERT INTO wallets (owner_id, currency_id, symbol, name, balance, assigned_to_order) VALUES ($1, $2, $4, $5, $3, 0.0)
-                    END`,
+            text: `INSERT INTO wallets (owner_id, currency_id, symbol, name, balance, assigned_to_order)
+                    VALUES ($1, $2, $4, $5, $3, 0.0)
+                    ON CONFLICT (owner_id, currency_id) DO UPDATE
+                    SET balance = wallets.balance + EXCLUDED.balance;`,
             values: [buyer_id, currency1_id, amount, currency1.symbol, currency1.name]
         }
     ).new_query(
         {
-            text: `UPDATE wallest SET balance = balance - $1 WHERE owner_id = $2 AND currency_id = $3`,
+            text: `UPDATE wallets SET balance = balance - $1 WHERE owner_id = $2 AND currency_id = $3`,
             values: [amount, seller_id, currency1_id]
         }
     ).new_query(
         {
-            text: `IF EXISTS (SELECT * FROM wallets WHERE owner_id = $1 AND currency_id = $2)
-                    BEGIN 
-                        UPDATE wallets SET balance = balance + $3 WHERE owner_id = $1 AND currency_id = $2
-                    END ELSE BEGIN
-                        INSERT INTO wallets (owner_id, currency_id, symbol, name, balance, assigned_to_order) VALUES ($1, $2, $4, $5, $3, 0.0)
-                    END`,
+            text: `INSERT INTO wallets (owner_id, currency_id, symbol, name, balance, assigned_to_order)
+                    VALUES ($1, $2, $4, $5, $3, 0.0)
+                    ON CONFLICT (owner_id, currency_id) DO UPDATE
+                    SET balance = wallets.balance + EXCLUDED.balance;`,
             values: [seller_id, currency2_id, amount*price, currency2.symbol, currency2.name]
         }
     ).new_query(
         {
-            text: `UPDATE wallest SET balance = balance - $1 WHERE owner_id = $2 AND currency_id = $3`,
+            text: `UPDATE wallets SET balance = balance - $1 WHERE owner_id = $2 AND currency_id = $3`,
             values: [amount*price, buyer_id, currency2_id]
         }
-    ).execute_queries()).unwrap(); // can cause errors if the query fails
+    ).execute_queries()
+
+    if(result_transaction.is_err()) {
+        console.error(result_transaction.unwrap_err());
+        return Result.Err(TransactionError.InternalError);
+    }
+
+    return Result.Ok(null);
 }

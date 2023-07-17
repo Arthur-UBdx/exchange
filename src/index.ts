@@ -1,13 +1,12 @@
-import {Router, Application} from 'express'; 
-import cookieParser from 'cookie-parser';
-
-// import { perform_transaction } from './engine/order_matching';
 
 const express = require('express');
 const dotenv = require('dotenv');
 dotenv.config();
 
-console.log(process.env.DATABASE_URL);
+import {Router, Application} from 'express'; 
+import cookieParser from 'cookie-parser';
+
+import { perform_transaction, TransactionError } from './engine/order_matching';
 
 const router_ressource: Router = require('./web/route_ressource');
 const router_api_user_unauth: Router = require('./web/api/user/routes_unauth');
@@ -32,10 +31,26 @@ class Server {
             res.send('Hello world');
         })
 
-        // this.app.post('/perform_transaction', async (req, res) => {
-        //     await perform_transaction(34, 33, 1, 3, 1, 10);
-        //     res.status(200).send('transaction performed');
-        // });
+        this.app.post('/perform_transaction', async (req, res) => {
+            const result = await perform_transaction(34, 33, 1, 3, 1, 10);
+            
+            if(result.is_err()) {
+                switch (result.unwrap_err()) {
+                    case TransactionError.BuyerHasNotEnoughFunds:
+                        res.status(400).json({success: false, message: 'Buyer has not enough funds'});
+                        break;
+                    case TransactionError.SellerHasNotEnoughFunds:
+                        res.status(400).send({success: false, message: 'Seller has not enough funds'});
+                        break;
+                    case TransactionError.InternalError:
+                        console.error(result.unwrap_err());
+                        res.status(500).send({success: false, message: 'Internal error'});
+                        break;
+                }
+            }
+            
+            res.status(200).send('transaction performed');
+        });
 
         this.app.use(router_ressource);
         this.app.use(router_api_user_unauth);
