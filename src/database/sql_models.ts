@@ -42,8 +42,8 @@ export interface Candle {
 export interface Market {
     id: number; // PK serial
     pair_symbol: string; // varchar(16) unique
-    currency1_id: number; // int
-    currency1_symbol: string; // varchar(8)
-    currency2_id: number; // int
-    currency2_symbol: string; // varchar(8)
+    asset1_id: number; // int
+    asset1_symbol: string; // varchar(8)
+    asset2_id: number; // int
+    asset2_symbol: string; // varchar(8)
 }

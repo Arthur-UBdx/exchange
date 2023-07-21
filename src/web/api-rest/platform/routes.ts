@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { get_currencies, get_markets } from './assets_markets'
 import { Asset, Market } from '../../../database/sql_models';
 import { Result } from '../../../utils/result';
+import { RequestError } from '../../user_errors';
 
 const router_api_platform: Router = Router();
 
@@ -16,7 +17,7 @@ interface AssetPublic { //remove the reserve and assigned fields
 router_api_platform.get('/api/platform/currencies', async (req, res) => {
     const result: Result<AssetPublic[],string> = await get_currencies();
     if(result.is_err()) {
-        res.status(500).json({success:"false", message:"Internal server error"});
+        res.status(500).json({success:"false", reason:RequestError.InternalError});
         return;
     }
     const currencies: AssetPublic[] = result.unwrap();
@@ -24,17 +25,17 @@ router_api_platform.get('/api/platform/currencies', async (req, res) => {
         delete currency.reserve;
         delete currency.assigned;
     }
-    res.status(200).json({success:"true", message:"Currencies found", currencies: currencies});
+    res.status(200).json({success:"true", reason:"Currencies found", currencies: currencies});
 })
 
 router_api_platform.get('/api/platform/markets', async (req, res) => {
     const result: Result<Market[],string> = await get_markets();
     if(result.is_err()) {
-        res.status(500).json({success:"false", message:"Internal server error"});
+        res.status(500).json({success:"false", reason:RequestError.InternalError});
         return;
     }
     const currencies: Market[] = result.unwrap();
-    res.status(200).json({success:"true", message:"Markets found", markets: currencies});
+    res.status(200).json({success:"true", reason:"Markets found", markets: currencies});
 })
 
 module.exports = router_api_platform;

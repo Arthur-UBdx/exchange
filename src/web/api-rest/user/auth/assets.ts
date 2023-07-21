@@ -38,10 +38,9 @@ export async function get_wallets(user_id: number): Promise<Result<Wallet[], Wal
 // deposit
 
 export enum DepositError {
-    NotEnoughReserve,
-    InternalError,
-    BadRequest,
-    NotFound,
+    InternalError = -1,
+    BadRequest = -2,
+    NotFound = 5,
 }
 
 export async function deposit(user_id: number, currency_symbol: string, amount: number): Promise<Result<Wallet, DepositError>> {
@@ -148,3 +147,7 @@ export async function deposit(user_id: number, currency_symbol: string, amount: 
     }
 
 }
+
+// export async function withdraw(user_id: number, currency_symbol: string, amount: number): Promise<Result<Wallet, WithdrawError>> {
+
+// };

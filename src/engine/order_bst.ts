@@ -1,7 +1,11 @@
 // an implementation of a binary search tree using a linked list as queue as nodes
 // each order is stored in a queue, and the queue is stored in a node of the tree
+import { Order, OrderFindStatus, OrderStatus } from "./order_matching";
 
-import { Order } from "./order_matching";
+enum OrderQueueReplacementStatus {
+    Success = 0,
+    QueueNotFound = 1,
+}
 
 export class OrderQueueNode {
     public order: Order;
@@ -98,6 +102,34 @@ export class OrderQueue {
      */
     public is_empty(): boolean {
         return this.head === null;
+    }
+
+    /**
+     * Remove the order with the specified id from the queue
+     * @param id the id of the order to be removed from the queue
+     * @returns 
+     */
+    public remove_order(id: number): OrderFindStatus {
+        let node = this.head;
+        if(node === null) {
+            return OrderFindStatus.NotFound;
+        }
+        while(node.order.id !== id) {
+            node = node.next;
+            if(node === null) {
+                return OrderFindStatus.NotFound;
+            }
+        }
+        if(node === this.head) {
+            this.head = node.next;
+            return OrderFindStatus.Success;
+        }
+        let prev_node = this.head;
+        while(prev_node.next !== node) {
+            prev_node = prev_node.next;
+        }
+        prev_node.next = node.next;
+        return OrderFindStatus.Success;
     }
 
     /**
@@ -290,6 +322,23 @@ export class OrderBST {
         this.root = remove_node(this.root, price);
     }
 
+    public remove_order(order: Order): OrderFindStatus {
+        const price = order.price;
+        const id = order.id;
+
+        const queue = this.find(price);
+        if(queue === null) {
+            return OrderFindStatus.NotFound;
+        }
+        const result: OrderFindStatus = queue.remove_order(id);
+        if(result === OrderFindStatus.Success && queue.is_empty()) {
+            this.remove(price);
+        } else {
+            this.replace_queue_in_node(queue, price);
+        }
+        return result;
+    }
+
     /**
      * 
      * @returns the order queue at the minimum price in the queue in the BST without removing it from the BST
@@ -303,6 +352,31 @@ export class OrderBST {
             current = current.left;
         }
         return current.order_queue;
+    }
+
+    /**
+     * Replaces the whole queue in the price node in the BST if it exists
+     * @param queue the queue that will replace the queue in the node
+     * @param price the price of the queue to be replaced
+     * @returns 
+     */
+    public replace_queue_in_node(queue: OrderQueue, price: number): OrderQueueReplacementStatus {
+        let current: OrderQueueTreeNode = this.root;
+        if(current === null) {
+            return OrderQueueReplacementStatus.QueueNotFound;   
+        }
+        while(current.get_price() !== price) {
+            if(price < current.get_price()) {
+                current = current.left;
+            } else {
+                current = current.right;
+            }
+            if(current === null) {
+                return OrderQueueReplacementStatus.QueueNotFound;
+            }
+        }
+        current.order_queue = queue;
+        return OrderQueueReplacementStatus.Success;
     }
 
     /**
@@ -428,106 +502,127 @@ export class OrderBST {
     }
 }
 
-export class BSTTests {
-    public static test() {
-        // Create sample orders
-        const order1 = {
-            id: 1,
-            owner_id: 1,
-            market_id: 1,
-            market_symbol: "BTC/USD",
-            side: true,
-            price: 50000,
-            amount: 1,
-            filled: 0,
-            status: 0,
-            created_at: new Date(),
-            updated_at: new Date(),
-        };
+// export class BSTTests {
+//     public static test(): void {
+//         const order1: Order = {
+//             id: 1,
+//             filled: 0,
+//             status: OrderStatus.Open,
+//             updated_at: new Date(),
+//             owner_id: 1,
+//             market_id: 1,
+//             pair: "BTC/USD",
+//             side: true,
+//             price: 50000,
+//             amount: 0.5,
+//             created_at: new Date(),
+//           };
+          
+//           const order2: Order = {
+//             id: 2,
+//             filled: 0,
+//             status: OrderStatus.Open,
+//             updated_at: new Date(),
+//             owner_id: 2,
+//             market_id: 1,
+//             pair: "BTC/USD",
+//             side: true,
+//             price: 55000,
+//             amount: 0.3,
+//             created_at: new Date(),
+//           };
+          
+//           const order3: Order = {
+//             id: 3,
+//             filled: 0,
+//             status: OrderStatus.Open,
+//             updated_at: new Date(),
+//             owner_id: 3,
+//             market_id: 1,
+//             pair: "BTC/USD",
+//             side: false,
+//             price: 45000,
+//             amount: 0.7,
+//             created_at: new Date(),
+//           };
+          
+//           // Create a test OrderBST instance
+//           const orderBST = new OrderBST();
+          
+//           // Test insert() method
+//           orderBST.insert(order1);
+//           orderBST.insert(order2);
+//           orderBST.insert(order3);
 
-        const order4 = {
-            id: 4,
-            owner_id: 1,
-            market_id: 1,
-            market_symbol: "BTC/USD",
-            side: true,
-            price: 50000,
-            amount: 1,
-            filled: 0,
-            status: 0,
-            created_at: new Date(),
-            updated_at: new Date(),
-        };
-        
-        const order2 = {
-            id: 2,
-            owner_id: 2,
-            market_id: 1,
-            market_symbol: "ETH/USD",
-            side: true,
-            price: 4000,
-            amount: 5,
-            filled: 0,
-            status: 0,
-            created_at: new Date(),
-            updated_at: new Date(),
-        };
-        
-        const order3 = {
-            id: 3,
-            owner_id: 3,
-            market_id: 1,
-            market_symbol: "BTC/USD",
-            side: false,
-            price: 48000,
-            amount: 2,
-            filled: 0,
-            status: 0,
-            created_at: new Date(),
-            updated_at: new Date(),
-        };
-        
-        // Create an instance of the OrderBST
-        const orderBST = new OrderBST();
-        
-        // Test pushing orders into the BST
-        orderBST.insert(order1);
-        orderBST.insert(order2);
-        orderBST.insert(order3);
-        orderBST.insert(order4);
-        
-        // Test finding the minimum and maximum prices
-        const minPriceQueue = orderBST.find_min();
-        console.log("Minimum price queue:", minPriceQueue);
-        
-        const maxPriceQueue = orderBST.find_max();
-        console.log("Maximum price queue:", maxPriceQueue);
-        
-        // Test finding a specific price queue
-        const specificPriceQueue = orderBST.find(50000);
-        console.log("Specific price queue (50000):", specificPriceQueue);
-        
-        // Test popping an orderMin from the BST
-        const poppedOrderMin = orderBST.pop_min();
-        console.log("Popped min order:", poppedOrderMin);
+//           console.log("First inserts :",orderBST.into_array());
+          
+//           // Test find_min() method
+//           const minQueue: OrderQueue | null = orderBST.find_min();
+//           console.log("Min Queue:", minQueue?.into_array());
+          
+//           // Test find_max() method
+//           const maxQueue: OrderQueue | null = orderBST.find_max();
+//           console.log("Max Queue:", maxQueue?.into_array());
+          
+//           // Test replace_min() method
+//           const replacementOrder1: Order = {
+//             id: 4,
+//             filled: 0,
+//             status: OrderStatus.Open,
+//             updated_at: new Date(),
+//             owner_id: 4,
+//             market_id: 1,
+//             pair: "BTC/USD",
+//             side: true,
+//             price: 48000,
+//             amount: 0.2,
+//             created_at: new Date(),
+//           };
+//           orderBST.replace_min(replacementOrder1);
+//           console.log("Replaced Min Queue:", orderBST.into_array());
+          
+//           // Test replace_max() method
+//           const replacementOrder2: Order = {
+//             id: 5,
+//             filled: 0,
+//             status: OrderStatus.Open,
+//             updated_at: new Date(),
+//             owner_id: 5,
+//             market_id: 1,
+//             pair: "BTC/USD",
+//             side: true,
+//             price: 60000,
+//             amount: 1.0,
+//             created_at: new Date(),
+//           };
+//           orderBST.replace_max(replacementOrder2);
+//           console.log("Replaced Max Queue:", maxQueue?.into_array());
+          
+//           // Test pop_min() method
+//           const poppedOrder1: Order | null = orderBST.pop_min();
+//           console.log("Popped Min Order:", poppedOrder1);
+          
+//           // Test pop_max() method
+//           const poppedOrder2: Order | null = orderBST.pop_max();
+//           console.log("Popped Max Order:", poppedOrder2);
+          
+//           // Test extract() method
+//           const extractedOrder: Order | null = orderBST.extract(50000);
+//           console.log("Extracted Order:", extractedOrder);
+          
+//           // Test remove_order() method
+//           const removedOrderStatus = orderBST.remove_order(order2);
+//           console.log("Removed Order Status:", removedOrderStatus);
+          
+//           // Test into_array() method
+//           const orderArray: Order[] = orderBST.into_array();
+//           console.log("Order Array:", orderArray);
 
-        // Test popping an orderMax from the BST
-        const poppedOrderMax = orderBST.pop_max();
-        console.log("Popped max order:", poppedOrderMax);
-        
-        // Test extracting an order from the BST based on price
-        const extractedOrder = orderBST.extract(50000);
-        console.log("Extracted order (price 50000):", extractedOrder);
-        
-        // Test converting the BST to an array
-        const orderArray = orderBST.into_array();
-        console.log("Order array:", orderArray);
-        
-        // Test removing a specific price queue from the BST
-        orderBST.remove(50000);
-        
-        // Test checking if the BST is empty
-        const isEmpty = orderBST.is_empty();
-        console.log("Is BST empty:", isEmpty);
-    }
-}
+//           orderBST.insert(order2);
+//           console.log("Second inserts :",orderBST.into_array());
+          
+//           // Test is_empty() method
+//           const isEmpty: boolean = orderBST.is_empty();
+//           console.log("Is Empty:", isEmpty);
+//     }
+// }

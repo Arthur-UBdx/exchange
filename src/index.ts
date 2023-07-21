@@ -1,4 +1,3 @@
-
 const express = require('express');
 const dotenv = require('dotenv');
 dotenv.config();
@@ -6,13 +5,15 @@ dotenv.config();
 import {Router, Application} from 'express'; 
 import cookieParser from 'cookie-parser';
 
-import { perform_transaction, TransactionError } from './engine/order_matching';
+import { OrderBooks } from './engine/markets';
 
 const router_ressource: Router = require('./web/route_ressource');
-const router_api_user_unauth: Router = require('./web/api/user/routes_unauth');
-const router_api_user_auth: Router = require('./web/api/user/routes_auth');
+const router_api_user_unauth: Router = require('./web/api-rest/user/unauth/routes');
+const router_api_user_auth: Router = require('./web/api-rest/user/auth/routes');
 const router_pages_user_unauth: Router = require('./web/pages/user_unauth');
-const router_api_platform: Router = require('./web/api/platform/routes');
+const router_api_platform: Router = require('./web/api-rest/platform/routes');
+const router_api_auth_market = require('./web/api-rest/market/auth/routes');
+const router_api_market_unauth = require('./web/api-rest/market/unauth/routes');
 
 class Server {
     private app: Application;
@@ -20,6 +21,11 @@ class Server {
     constructor() {
         this.app = express();
         this.layers();
+        this.engine_init();
+    }
+
+    private engine_init() {
+        OrderBooks.init();
     }
 
     private layers() {
@@ -30,35 +36,15 @@ class Server {
         this.app.get('/', (req, res) => {
             res.send('Hello world');
         })
-
-        this.app.post('/perform_transaction', async (req, res) => {
-            const result = await perform_transaction(34, 33, 1, 3, 1, 10);
-            
-            if(result.is_err()) {
-                switch (result.unwrap_err()) {
-                    case TransactionError.BuyerHasNotEnoughFunds:
-                        res.status(400).json({success: false, message: 'Buyer has not enough funds'});
-                        break;
-                    case TransactionError.SellerHasNotEnoughFunds:
-                        res.status(400).send({success: false, message: 'Seller has not enough funds'});
-                        break;
-                    case TransactionError.InternalError:
-                        console.error(result.unwrap_err());
-                        res.status(500).send({success: false, message: 'Internal error'});
-                        break;
-                }
-            }
-            
-            res.status(200).send('transaction performed');
-        });
-
         this.app.use(router_ressource);
         this.app.use(router_api_user_unauth);
         this.app.use(router_pages_user_unauth);
         this.app.use(router_api_platform);
+        this.app.use(router_api_market_unauth);
 
         // auth paths
         this.app.use(router_api_user_auth);
+        this.app.use(router_api_auth_market);
 
         // 404
         this.app.use((req, res) => {

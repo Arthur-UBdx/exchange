@@ -6,7 +6,8 @@ import { User } from '../../../../database/sql_models'
 const sql_database = new SQLDatabase();
 
 export enum RegisterError {
-    UsernameOrEmailTaken,
+    UsernameTaken,
+    EmailTaken,
     BadFormat,
     InternalError,
 }
@@ -41,8 +42,12 @@ export async function create_user(username: string, email: string, password: str
         console.error(result_existing_user.unwrap_err());
         return Result.Err(RegisterError.InternalError);
     }
-    if(result_existing_user.unwrap()[0].rowCount != 0 || result_existing_user.unwrap()[1].rowCount != 0) {
-        return Result.Err(RegisterError.UsernameOrEmailTaken);
+    if(result_existing_user.unwrap()[0].rowCount != 0) {
+        return Result.Err(RegisterError.UsernameTaken);
+    }
+
+    if(result_existing_user.unwrap()[1].rowCount != 0) {
+        return Result.Err(RegisterError.EmailTaken);
     }
     //
 
