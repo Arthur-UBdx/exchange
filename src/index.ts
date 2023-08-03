@@ -15,6 +15,9 @@ const router_api_platform: Router = require('./web/api-rest/platform/routes');
 const router_api_auth_market = require('./web/api-rest/market/auth/routes');
 const router_api_market_unauth = require('./web/api-rest/market/unauth/routes');
 
+//temp
+const router_api_tempapp = require('./tempapp/routes');
+
 class Server {
     private app: Application;
     
@@ -31,6 +34,9 @@ class Server {
     private layers() {
         this.app.use(express.json());
         this.app.use(cookieParser());
+
+        // tempapp paths
+        this.app.use(router_api_tempapp);
 
         // non auth paths
         this.app.get('/', (req, res) => {
