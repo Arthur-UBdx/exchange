@@ -1,11 +1,11 @@
 import Banner from './Banner'
-import BtcPrice from './Btc_price'
+import TokenList from './token_prices'
 
 function App() {
 	return (
 		<div>
 			<Banner/>
-			<BtcPrice/>
+			<TokenList/>
 		</div>
 	)
 }

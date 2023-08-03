@@ -37,7 +37,9 @@ const TokenList = () => {
       <h2>Liste des prix des tokens :</h2>
       <ul>
         {tokenPrices.map((price, index) => (
-          <li key={index}>{parseFloat(price).toFixed(2)} USDT</li>
+          <li key={index}>
+            {tokenSymbols[index]} : {parseFloat(price).toFixed(2)} USDT
+          </li>
         ))}
       </ul>
     </div>
