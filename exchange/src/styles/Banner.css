@@ -1,9 +1,9 @@
 .lmj-banner {
 	background-color: rgb(0, 0, 0);
-	color: white; /* Changement de la couleur du texte en blanc */
+	color: white;
 	text-align: center;
 	padding: 32px;
-	border-bottom: solid 3px black;
+	border-bottom: solid 5px rgb(0, 0, 0);
 	display: flex;
 	justify-content: center;
 	flex-direction: row;
@@ -17,7 +17,7 @@
 .lmj-logo {
 	height: 45px;
 	width: 45px;
-	animation: rotateLogo 3s linear infinite;
+	animation: rotateLogo 4s linear infinite;
 }
 
 @keyframes rotateLogo {
