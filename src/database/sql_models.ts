@@ -27,6 +27,15 @@ export interface Asset {
     assigned: number; // float (double precision)
 }
 
+export interface Market {
+    id: number; // PK serial
+    pair_symbol: string; // varchar(16) unique
+    asset1_id: number; // int
+    asset1_symbol: string; // varchar(8)
+    asset2_id: number; // int
+    asset2_symbol: string; // varchar(8)
+}
+
 export interface Candle {
     start: Date; // timestamp PK
     timeframe: number; // int
@@ -39,11 +48,12 @@ export interface Candle {
     currency_symbol_2: string; // varchar(8)
 }
 
-export interface Market {
-    id: number; // PK serial
-    pair_symbol: string; // varchar(16) unique
-    asset1_id: number; // int
-    asset1_symbol: string; // varchar(8)
-    asset2_id: number; // int
-    asset2_symbol: string; // varchar(8)
+export interface Transaction {
+    id: number;
+    buyer_id: number;
+    seller_id: number;
+    market_id: number;
+    price: number; 
+    amount: number;
+    timestamp: Date;
 }

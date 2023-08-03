@@ -399,15 +399,12 @@ export class OrderBST {
      * Deletes the first order in the queue at the minimum price in the BST
      * @returns void
      */
-    public delete_min(): void {
-        let current = this.root;
-        if(current === null) {
-            return null;
+    public remove_min(): void {
+        const price = this.find_min()?.get_price();
+        if(price == null) {
+            return;
         }
-        while(current.left !== null) {
-            current = current.left;
-        }
-        current.order_queue.dequeue();
+        this.remove(price);
     }
 
     /**
@@ -445,15 +442,12 @@ export class OrderBST {
      * Deletes the first order in the queue at the maximum price in the BST
      * @returns void
      */
-    public delete_max(): void {
-        let current = this.root;
-        if(current === null) {
-            return null;
+    public remove_max(): void {
+        const price = this.find_max()?.get_price();
+        if(price == null) {
+            return;
         }
-        while(current.right !== null) {
-            current = current.right;
-        }
-        current.order_queue.dequeue();
+        this.remove(price);
     }
 
     /**

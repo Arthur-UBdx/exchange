@@ -101,11 +101,11 @@ export class OrderBook {
 
     public async place_order(order_pending: OrderPending): Promise<Result<Order, TransactionError>> {
         const order = {
+            ...order_pending,
             id: this.uid++,
             filled: 0,
             status: OrderStatus.Open,
-            updated_at: new Date(),
-            ...order_pending
+            updated_at: new Date()
         }
 
         //check if user has enough funds
@@ -170,7 +170,7 @@ export class OrderBook {
         const price = order.price;
         
         while(left > 0) { // could optimise without having to find min every time but to check if the min queue is empty and then find the next min queue if it is
-            const min_order_queue: OrderQueue = this.buy_order_tree.find_max();
+            const min_order_queue: OrderQueue = this.sell_order_tree.find_min();
             if(min_order_queue == null) {
                 break;
             }
@@ -182,6 +182,7 @@ export class OrderBook {
                 const result_transaction = await perform_transaction(
                     order.owner_id,
                     min_order.owner_id,
+                    this.market.id,
                     this.market.asset1_id,
                     this.market.asset2_id,
                     left,
@@ -201,10 +202,10 @@ export class OrderBook {
                 left = 0;
                 
             } else { // if the order found amount is less or equal than the left amount to fill
-
                 const result_transaction = await perform_transaction(
                     order.owner_id,
                     min_order.owner_id,
+                    this.market.id,
                     this.market.asset1_id,
                     this.market.asset2_id,
                     min_order.amount - min_order.filled,
@@ -218,7 +219,7 @@ export class OrderBook {
                 }
                 
                 left = left - (min_order.amount - min_order.filled);
-                this.sell_order_tree.delete_min();
+                this.sell_order_tree.remove_min();
             }
         }
 
@@ -249,6 +250,7 @@ export class OrderBook {
                 const result_transaction = await perform_transaction(
                     max_order.owner_id,
                     order.owner_id,
+                    this.market.id,
                     this.market.asset1_id,
                     this.market.asset2_id,
                     left,
@@ -268,10 +270,10 @@ export class OrderBook {
                 left = 0;
 
             } else {
-
                 const result_transaction = await perform_transaction(
                     max_order.owner_id,
                     order.owner_id,
+                    this.market.id,
                     this.market.asset1_id,
                     this.market.asset2_id,
                     max_order.amount - max_order.filled,
@@ -285,7 +287,7 @@ export class OrderBook {
                 }
 
                 left = left - (max_order.amount - max_order.filled);
-                this.buy_order_tree.delete_max();
+                this.buy_order_tree.remove_max();
             }
         }
 
@@ -330,6 +332,7 @@ export class OrderBook {
 export async function perform_transaction(
     buyer_id: number,
     seller_id: number,
+    market_id: number,
     asset1_id: number,
     asset2_id: number,
     amount: number,
@@ -406,6 +409,11 @@ export async function perform_transaction(
         {
             text: `UPDATE wallets SET balance = balance - $1, assigned_to_order = assigned_to_order - $1 WHERE owner_id = $2 AND currency_id = $3;`,
             values: [amount*price, buyer_id, asset2_id]
+        }
+    ).new_query(
+        {
+            text: `INSERT INTO transactions (buyer_id, seller_id, market_id, price, amount, timestamp) VALUES ($1, $2, $3, $4, $5, $6);`,
+            values: [buyer_id, seller_id, market_id, price, amount, new Date()]
         }
     ).execute_queries()
 
