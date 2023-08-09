@@ -4,9 +4,9 @@ import '../styles/Banner.css'
 function Banner() {
 	const title = 'Exchange'
 	return (
-		<div className='lmj-banner'>
-			<img src={logo} alt='Exchange' className='lmj-logo' />
-			<h1 className='lmj-title'>{title}</h1>
+		<div className='banner'>
+			<img src={logo} alt='Exchange' className='logo' />
+			<h1 className='title'>{title}</h1>
 		</div>
 	)
 }

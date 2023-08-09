@@ -1,4 +1,4 @@
-.lmj-banner {
+.banner {
 	background-color: rgb(0, 0, 0);
 	color: white;
 	text-align: center;
@@ -10,11 +10,11 @@
 	align-items: center;
 }
 
-.lmj-title {
+.title {
 	padding-left: 32px;
 }
 
-.lmj-logo {
+.logo {
 	height: 45px;
 	width: 45px;
 	animation: rotateLogo 4s linear infinite;
