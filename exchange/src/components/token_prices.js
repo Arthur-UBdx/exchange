@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import btcusdtLogo from "../assets/bitcoin-logo.png";
+import ethusdtLogo from "../assets/ethereum-logo.png";
+import maticusdtLogo from "../assets/matic-logo.png";
+import dogecoinusdt from "../assets/dogecoin-logo.png";
 
-const tokenSymbols = ["BTCUSDT", "ETHUSDT", "MATICUSDT", "BNBUSDT"];
+const tokenSymbols = ["BTCUSDT", "ETHUSDT", "MATICUSDT", "DOGEUSDT"];
 
 const tokenLogos = {
-  BTCUSDT: "https://s2.coinmarketcap.com/static/img/coins/64x64/1.png",
-  ETHUSDT: "https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png",
-  MATICUSDT: "https://s2.coinmarketcap.com/static/img/coins/64x64/3890.png",
-  BNBUSDT: "https://s2.coinmarketcap.com/static/img/coins/64x64/1839.png",
+  BTCUSDT: btcusdtLogo,
+  ETHUSDT: ethusdtLogo,
+  MATICUSDT: maticusdtLogo,
+  DOGEUSDT: dogecoinusdt
 };
 
 const TokenList = () => {
