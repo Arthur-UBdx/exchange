@@ -1,20 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import btcusdtLogo from "../assets/bitcoin-logo.png";
-import ethusdtLogo from "../assets/ethereum-logo.png";
-import maticusdtLogo from "../assets/matic-logo.png";
-import dogecoinusdt from "../assets/dogecoin-logo.png";
+import '../styles/Tokens.css'
+import { tokenLogos } from "../datas/tokenlist";
+import { tokenSymbols } from "../datas/tokenlist";
 
-const tokenSymbols = ["BTCUSDT", "ETHUSDT", "MATICUSDT", "DOGEUSDT"];
-
-const tokenLogos = {
-  BTCUSDT: btcusdtLogo,
-  ETHUSDT: ethusdtLogo,
-  MATICUSDT: maticusdtLogo,
-  DOGEUSDT: dogecoinusdt
-};
-
-const TokenList = () => {
+const Tokens = () => {
   const [tokenData, setTokenData] = useState([]);
 
   useEffect(() => {
@@ -39,33 +29,28 @@ const TokenList = () => {
         console.error("Erreur lors de la récupération des données des tokens :", error);
       }
     };
-
     fetchTokenData();
-
     const interval = setInterval(fetchTokenData, 2000);
-
     return () => clearInterval(interval);
   }, []);
 
 
   return (
-    <div style={{ marginLeft: '10px' }}>
-      <h2>Market</h2>
-      <ul style={{ listStyleType: 'none', padding: 0 }}>
+    <div className="token-container">
+      <h2 className="token-heading">Markets</h2>
+      <ul className="token-list">
         {tokenData.map((token, index) => (
-          <li key={index} style={{ marginBottom: '10px' }}>
+          <li key={index} className="token-item">
             <img
               src={tokenLogos[token.symbol]}
               alt={token.symbol}
               width="20"
               height="20"
-              style={{ verticalAlign: 'middle', marginRight: '5px' }}
+              className="token-logo"
             />{" "}
             {token.symbol} : {token.price.toFixed(2)} USDT{" "}
             <span
-              style={{
-                color: token.priceChangePercent >= 0 ? "green" : "red"
-              }}
+              className={`token-price-change ${token.priceChangePercent >= 0 ? 'positive' : 'negative'}`}
             >
               {token.priceChangePercent.toFixed(2)}%{" "}
             </span>
@@ -76,4 +61,4 @@ const TokenList = () => {
   );
 };
 
-export default TokenList;
+export default Tokens;
