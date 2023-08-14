@@ -26,10 +26,7 @@ const Tokens = () => {
 
         setTokenData(tokenInfo);
       } catch (error) {
-        console.error(
-          "Erreur lors de la récupération des données des tokens :",
-          error
-        );
+        console.error("Error while catching datas :", error);
       }
     };
     fetchTokenData();
@@ -51,7 +48,7 @@ const Tokens = () => {
             className="token-item"
             onClick={() => redirectToTokenPage(token.symbol)}
           >
-            <div className="token-link">
+            <div>
               <img
                 src={tokenLogos[token.symbol]}
                 alt={token.symbol}
