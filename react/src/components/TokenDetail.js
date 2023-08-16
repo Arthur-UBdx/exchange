@@ -1,3 +1,4 @@
+/* eslint-disable no-implied-eval */
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -6,7 +7,6 @@ import ReactApexChart from 'react-apexcharts';
 const TokenDetail = () => {
     const { id } = useParams();
     const [interval, setInterval] = useState('15m');
-    
     const [candles, setCandles] = useState([]);
 
     useEffect(() => {
@@ -40,7 +40,7 @@ const TokenDetail = () => {
             toolbar: {
                 show: true,
                 tools: {
-                    download: false,
+                    download: true,
                     selection: true,
                     zoom: true,
                     zoomin: true,
