@@ -6,11 +6,12 @@ import ReactApexChart from 'react-apexcharts';
 const TokenDetail = () => {
     const { id } = useParams();
     const [interval, setInterval] = useState('15m');
-    const url = `https://api.binance.com/api/v3/klines?symbol=${id}&interval=${interval}`;
     
     const [candles, setCandles] = useState([]);
 
     useEffect(() => {
+        const url = `https://api.binance.com/api/v3/klines?symbol=${id}&interval=${interval}`;
+
         const getCandles = async () => {
             try {
                 const response = await axios.get(url);
@@ -28,9 +29,9 @@ const TokenDetail = () => {
                 console.error('Error fetching candles:', error.message);
             }
         };
-    
+
         getCandles();
-    }, [id, interval, url]);
+    }, [id, interval]);
 
     const options = {
         chart: {
