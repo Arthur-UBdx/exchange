@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { createChart } from 'lightweight-charts';
-import styles from '../styles/TokenDetail.module.css';
+import styles from '../styles/Charts.module.css';
+import Banner from './Banner';
 
-const TokenDetail = () => {
+const Charts = () => {
     const { id } = useParams();
     const chartRef = useRef(null);
     const [interval, setInterval] = useState('15m');
@@ -34,7 +35,7 @@ const TokenDetail = () => {
 
     useEffect(() => {
         if (chartContainerRef.current && !chartRef.current) {
-            chartRef.current = createChart(chartContainerRef.current, { width: 800, height: 400 });
+            chartRef.current = createChart(chartContainerRef.current, { width: 800, height: 400});
             candlestickSeriesRef.current = chartRef.current.addCandlestickSeries();
         }
 
@@ -56,17 +57,20 @@ const TokenDetail = () => {
     };
 
     return (
-        <div className={styles.tokenDetailContainer}>
-            <h1 className={styles.tokenDetailHeader}>{id}</h1>
-            <div className={styles.tokenDetailIntervalButtons}>
-                <button className={styles.tokenDetailIntervalButton} onClick={() => handleIntervalChange('15m')}>15m</button>
-                <button className={styles.tokenDetailIntervalButton} onClick={() => handleIntervalChange('1h')}>1h</button>
-                <button className={styles.tokenDetailIntervalButton} onClick={() => handleIntervalChange('4h')}>4h</button>
-                <button className={styles.tokenDetailIntervalButton} onClick={() => handleIntervalChange('1d')}>1d</button>
+        <div>
+            <Banner />
+                <div className={styles.ChartsContainer}>
+                    <h1 className={styles.ChartsDetailHeader}>{id}</h1>
+                    <div className={styles.ChartsButtons}>
+                        <button onClick={() => handleIntervalChange('15m')}>15m</button>
+                        <button onClick={() => handleIntervalChange('1h')}>1h</button>
+                        <button onClick={() => handleIntervalChange('4h')}>4h</button>
+                        <button onClick={() => handleIntervalChange('1d')}>1d</button>
+                    </div>
+                <div ref={chartContainerRef}></div>
             </div>
-            <div ref={chartContainerRef}></div>
         </div>
-    );    
+    );
 };
 
-export default TokenDetail;
+export default Charts;

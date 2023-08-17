@@ -1,0 +1,23 @@
+.ChartsContainer {
+    background-color: #0c0f35;
+    font-family: 'Arial', sans-serif;
+    color: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    height: 100vh;
+    text-align: center;
+}
+
+.ChartsDetailHeader {
+    color: #FFFFFF;
+    margin-top: 20px;
+}
+
+.ChartsButtons {
+    margin: 20px 0;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
