@@ -10,9 +10,8 @@ const TokenDetail = () => {
     const [candles, setCandles] = useState([]);
 
     useEffect(() => {
-        const url = `https://api.binance.com/api/v3/klines?symbol=${id}&interval=${interval}`;
-
-        const getCandles = async () => {
+        const fetchCandles = async () => {
+            const url = `https://api.binance.com/api/v3/klines?symbol=${id}&interval=${interval}&limit=100`;
             try {
                 const response = await axios.get(url);
                 const candlesData = response.data.map(item => ({
@@ -30,19 +29,19 @@ const TokenDetail = () => {
             }
         };
 
-        getCandles();
+        fetchCandles();
     }, [id, interval]);
 
     const options = {
         chart: {
             type: 'candlestick',
-            height: 350,
+            height: 500,
             toolbar: {
                 show: true,
                 tools: {
                     download: true,
                     selection: true,
-                    zoom: true,
+                    zoom: false,
                     zoomin: true,
                     zoomout: true,
                     pan: true,
@@ -92,7 +91,7 @@ const TokenDetail = () => {
                 <button onClick={() => setInterval('4h')}>4h</button>
                 <button onClick={() => setInterval('1d')}>1d</button>
             </div>
-            <ReactApexChart options={options} series={[{ data: candles }]} type="candlestick" height={350} />
+            <ReactApexChart options={options} series={[{ data: candles }]} type="candlestick" height={500} />
         </div>
     );
 };
