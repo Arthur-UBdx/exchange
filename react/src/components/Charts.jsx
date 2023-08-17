@@ -35,7 +35,7 @@ const Charts = () => {
 
     useEffect(() => {
         if (chartContainerRef.current && !chartRef.current) {
-            chartRef.current = createChart(chartContainerRef.current, { width: 800, height: 400});
+            chartRef.current = createChart(chartContainerRef.current, { width: 800, height: 400 });
             candlestickSeriesRef.current = chartRef.current.addCandlestickSeries();
         }
 
@@ -59,14 +59,15 @@ const Charts = () => {
     return (
         <div>
             <Banner />
-                <div className={styles.ChartsContainer}>
-                    <h1 className={styles.ChartsDetailHeader}>{id}</h1>
-                    <div className={styles.ChartsButtons}>
-                        <button onClick={() => handleIntervalChange('15m')}>15m</button>
-                        <button onClick={() => handleIntervalChange('1h')}>1h</button>
-                        <button onClick={() => handleIntervalChange('4h')}>4h</button>
-                        <button onClick={() => handleIntervalChange('1d')}>1d</button>
-                    </div>
+            <div className={styles.ChartsContainer}>
+                <h1 className={styles.ChartsDetailHeader}>{id}</h1>
+                <div className={styles.ChartsButtons}>
+                    <button onClick={() => handleIntervalChange('15m')}>15m</button>
+                    <button onClick={() => handleIntervalChange('1h')}>1h</button>
+                    <button onClick={() => handleIntervalChange('4h')}>4h</button>
+                    <button onClick={() => handleIntervalChange('1d')}>1d</button>
+                    <button onClick={() => handleIntervalChange('1w')}>1w</button>
+                </div>
                 <div ref={chartContainerRef}></div>
             </div>
         </div>
