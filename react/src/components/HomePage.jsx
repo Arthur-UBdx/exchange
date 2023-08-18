@@ -4,7 +4,7 @@ import "../styles/Tokens.css";
 import { tokenLogos } from "../datas/tokenlist";
 import { tokenSymbols } from "../datas/tokenlist";
 
-const Tokens = () => {
+const HomePage = () => {
   const [tokenData, setTokenData] = useState([]);
 
   useEffect(() => {
@@ -57,11 +57,7 @@ const Tokens = () => {
                 className="token-logo"
               />
               {token.symbol} : {token.price.toFixed(2)} USDT{" "}
-              <span
-                className={`token-price-change ${
-                  token.priceChangePercent >= 0 ? "positive" : "negative"
-                }`}
-              >
+              <span className={`token-price-change ${token.priceChangePercent >= 0 ? "positive" : "negative"}`}>
                 {token.priceChangePercent.toFixed(2)}%{" "}
               </span>
             </div>
@@ -72,4 +68,4 @@ const Tokens = () => {
   );
 };
 
-export default Tokens;
+export default HomePage;

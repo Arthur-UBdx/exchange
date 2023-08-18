@@ -1,6 +1,6 @@
 import React from 'react';
 import Banner from './Banner';
-import Tokens from './Tokens';
+import HomePage from './HomePage';
 import Charts from './Charts';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
@@ -8,7 +8,7 @@ function Home() {
   return (
     <div>
       <Banner />
-      <Tokens />
+      <HomePage />
     </div>
   );
 }
