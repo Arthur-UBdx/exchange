@@ -21,3 +21,21 @@
     gap: 10px;
     justify-content: center;
 }
+
+.ChartsButtons > button {
+    background-color: #1a4369;
+    font-size: 20px;
+    font-weight: bold;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    color: white;
+    padding: 10px 40px;
+    border-radius: 10px;
+    border: none;
+}
+
+.ChartsButtons > button:hover {
+    background-color: #3f74a5;
+    transition: cubic-bezier(0.39, 0.575, 0.565, 1);
+    transition-duration: 200ms;
+    cursor: pointer;
+}

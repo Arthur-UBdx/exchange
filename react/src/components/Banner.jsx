@@ -8,9 +8,11 @@ function Banner() {
     return (
         <div className='banner'>
             <Link to='/'>
-                <img src={logo} alt='CoinHarbor' className='logo' />
+                <div className="logo-title-container">
+                    <img src={logo} alt='CoinHarbor' className='logo' />
+                    <h1 className="title">{title}</h1>
+                </div>
             </Link>
-            <h1 className='title'>{title}</h1>
         </div>
     );
 }

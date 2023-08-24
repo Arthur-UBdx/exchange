@@ -5,6 +5,9 @@ import styles from '../styles/Charts.module.css';
 import Banner from './Banner';
 import getCandlesData from '../api/FetchCandlesData';
 
+const CHART_WIDTH = 0.6;
+const CHART_HEIGHT = 0.6;
+
 const Charts = () => {
     const { id } = useParams();
     const chartRef = useRef(null);
@@ -27,7 +30,10 @@ const Charts = () => {
 
     useEffect(() => {
         if (chartContainerRef.current && !chartRef.current) {
-            chartRef.current = createChart(chartContainerRef.current, { width: 800, height: 400 });
+            const screen_width = window.innerWidth;
+            const screen_height = window.innerHeight;
+
+            chartRef.current = createChart(chartContainerRef.current, { width: screen_width*CHART_WIDTH, height: screen_height*CHART_HEIGHT });
             candlestickSeriesRef.current = chartRef.current.addCandlestickSeries();
         }
         if (candles.length > 0 && candlestickSeriesRef.current) {
@@ -59,7 +65,10 @@ const Charts = () => {
                     <button onClick={() => handleIntervalChange('1d')}>1d</button>
                     <button onClick={() => handleIntervalChange('1w')}>1w</button>
                 </div>
-                <div ref={chartContainerRef}></div>
+                {/* <div> */}
+                <div ref={chartContainerRef} className={styles.ChartsContainer}></div>
+                    {/* <div><h1 className="price-tag" id="price-tag">helloworld</h1></div>
+                </div> */}
             </div>
         </div>
     );

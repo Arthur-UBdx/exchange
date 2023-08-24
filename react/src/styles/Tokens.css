@@ -20,6 +20,13 @@
     border-radius: 8px;
     background-color: #f7f7f7;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease-in-out;
+}
+
+.token-item:hover {
+    transform: translateY(-5px);
+    cursor: pointer;
+    background-color: #c0c0c0;
 }
 
 .token-logo {

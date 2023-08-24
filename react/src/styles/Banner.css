@@ -10,8 +10,20 @@
 	align-items: center;
 }
 
+.logo-title-container {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
 .title {
 	padding-left: 16px;
+	text-decoration: none;
+	color: white
+}
+
+a:link {
+	text-decoration: none;
 }
 
 .logo {
